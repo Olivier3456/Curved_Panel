@@ -26,6 +26,8 @@ public class CurvedScreen : MonoBehaviour
         GenerateCurvedMesh();
     }
 
+
+    // DEBUG
     private void Update()
     {
         GenerateCurvedMesh();
@@ -144,6 +146,7 @@ public class CurvedScreen : MonoBehaviour
         }
     }
 
+
     private void DisplayScreenCorners()
     {
         for (int i = 0; i < cornerPositions.Length; i++)
@@ -162,42 +165,36 @@ public class CurvedScreen : MonoBehaviour
     private Vector3 rightEdgeProjection;
     public Vector2 GetNormalizedHitPoint(Vector3 hitPoint)
     {
-        GetHitPointProjectionsOnVerticalEdges(hitPoint);
+        GetHitPointProjectionsOnLateralEdges(hitPoint);
 
-        //Vector3 fromCenterToUpLeftCorner = cornerPositions[1] - centerPoint;
-        //Vector3 fromCenterToUpRightCorner = cornerPositions[3] - centerPoint;
-        //Vector3 fromCenterToHitPoint = hitPoint - centerPoint;
-        //float leftAngle = Vector3.Angle(fromCenterToUpLeftCorner, fromCenterToHitPoint);
-        //float rightAngle = Vector3.Angle(fromCenterToUpRightCorner, fromCenterToHitPoint);
-        //float x = leftAngle / (leftAngle + rightAngle);
+        Vector3 fromCenterToLeft = leftEdgeProjection - centerPoint;
+        Vector3 fromCenterToRight = rightEdgeProjection - centerPoint;
+        Vector3 fromCenterToHitPoint = hitPoint - centerPoint;
+        float leftAngle = Vector3.Angle(fromCenterToLeft, fromCenterToHitPoint);
+        float rightAngle = Vector3.Angle(fromCenterToRight, fromCenterToHitPoint);
+        float x = leftAngle / (leftAngle + rightAngle);
 
-        //Debug.Log($"left angle = {leftAngle}, right angle = {rightAngle}.");
+        float y = 0;
 
-        //float y = 
+        Vector2 normalizedHitPoint = new Vector2(x, y);
 
-        Vector2 normalizedHitPoint = Vector2.zero;
-        //Debug.Log($"NormalizedHitPoint.x: {x}");
+        Debug.Log($"left angle = {leftAngle}, right angle = {rightAngle}. NormalizedHitPoint.x: {x}");
+
         return normalizedHitPoint;
     }
 
 
 
-    private void GetHitPointProjectionsOnVerticalEdges(Vector3 point)
+    private void GetHitPointProjectionsOnLateralEdges(Vector3 point)
     {
-        Vector3 direction = axisDirection; // Line along the y-axis
-        Vector3 pointLeft = cornerPositions[0]; // Line passes through the origin
-        Vector3 pointRight = cornerPositions[2]; // Line passes through the origin
-
-        Vector3 projectedPointLeft = ProjectPointOnLine(point, direction, pointLeft);
-        Vector3 projectedPointRight = ProjectPointOnLine(point, direction, pointRight);
+        leftEdgeProjection = ProjectPointOnLine(point, axisDirection, cornerPositions[0]);
+        rightEdgeProjection = ProjectPointOnLine(point, axisDirection, cornerPositions[2]);
 
         if (displayMarkers)
         {
-            leftProjectionPointMarker.transform.position = projectedPointLeft;
-            rightProjectionPointMarker.transform.position = projectedPointRight;
+            leftProjectionPointMarker.transform.position = leftEdgeProjection;
+            rightProjectionPointMarker.transform.position = rightEdgeProjection;
         }
-
-        //Debug.Log("Projected Point: " + projectedPointLeft);
     }
 
 
