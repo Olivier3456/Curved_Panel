@@ -26,6 +26,13 @@ public class CastRay : MonoBehaviour
                 currentHitGo = hit.collider.gameObject;
 
                 Debug.Log($"Touched Something: {hit.collider.name}.");
+
+
+            }
+
+            if (currentHitGo.transform.TryGetComponent(out CurvedScreen cs))
+            {
+                //cs.GetNormalizedHitPoint(hit.point);
             }
 
             if (hitPointMarker != null)

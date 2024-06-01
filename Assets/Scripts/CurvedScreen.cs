@@ -9,16 +9,25 @@ public class CurvedScreen : MonoBehaviour
     [Range(1f, 20f)] public float curvatureRadius = 5.0f; // Rayon de courbure
     [Range(6, 32)] public int segments = 10; // Nombre de segments pour la courbure
 
+    private Vector3[] cornerPositions = new Vector3[4];
+    public GameObject[] cornersMarkers;
+
 
     private void Awake()
     {
         GenerateCurvedMesh();
     }
 
-    
+    private void Update()
+    {
+        GenerateCurvedMesh();
+    }
+
 
     void GenerateCurvedMesh()
     {
+        int cornersIndex = 0;
+
         // Obtient le MeshFilter attaché au GameObject
         MeshFilter meshFilter = GetComponent<MeshFilter>();
         // Crée un nouveau Mesh
@@ -56,7 +65,14 @@ public class CurvedScreen : MonoBehaviour
             // Coordonnées UV pour les vertices
             uv[i * 2] = new Vector2((float)i / segments, 0);
             uv[i * 2 + 1] = new Vector2((float)i / segments, 1);
+
+
+            // AJOUT PERSO
+            SetCornersPositions(ref cornersIndex, vertices, i);
+            DisplayScreenCorners();
         }
+
+
 
         // Création des triangles pour chaque segment
         for (int i = 0; i < segments; i++)
@@ -85,8 +101,51 @@ public class CurvedScreen : MonoBehaviour
         // Assigne le mesh au MeshFilter
         meshFilter.mesh = mesh;
 
-
         // Assigne le mesh au MeshCollider
         GetComponent<MeshCollider>().sharedMesh = mesh;
     }
+
+
+    private void SetCornersPositions(ref int index, Vector3[] vertices, int i)
+    {
+        if (i == 0 || i == segments)
+        {
+            cornerPositions[index] = transform.rotation * vertices[i * 2]  + transform.position;
+            cornersMarkers[index].transform.position = cornerPositions[index];
+            index++;
+        }
+
+        if (index == 1)
+        {
+            cornerPositions[index] = cornerPositions[index - 1] + transform.up * height;
+            index++;
+        }
+        else if (index == 3)
+        {
+            cornerPositions[index] = cornerPositions[index - 1] + transform.up * height;
+            index++;
+        }
+    }
+
+    private void DisplayScreenCorners()
+    {
+        for (int i = 0; i < cornerPositions.Length; i++)
+        {
+            cornersMarkers[i].transform.position = cornerPositions[i];
+        }
+    }
+
+
+
+
+
+
+    //public Vector2 GetNormalizedHitPoint(Vector3 hitPoint)
+    //{
+
+
+
+
+
+    //}
 }
