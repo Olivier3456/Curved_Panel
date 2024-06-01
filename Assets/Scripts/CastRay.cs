@@ -32,7 +32,7 @@ public class CastRay : MonoBehaviour
 
             if (currentHitGo.transform.TryGetComponent(out CurvedScreen cs))
             {
-                //cs.GetNormalizedHitPoint(hit.point);
+                cs.GetNormalizedHitPoint(hit.point);
             }
 
             if (hitPointMarker != null)

@@ -10,7 +10,12 @@ public class CurvedScreen : MonoBehaviour
     [Range(6, 32)] public int segments = 10; // Nombre de segments pour la courbure
 
     private Vector3[] cornerPositions = new Vector3[4];
+    private Vector3 centerPoint;
+    private Vector3 axisDirection;
+
+    public bool displayMarkers = true;
     public GameObject[] cornersMarkers;
+    public GameObject curveCenterPointMarker;
 
 
     private void Awake()
@@ -69,7 +74,10 @@ public class CurvedScreen : MonoBehaviour
 
             // AJOUT PERSO
             SetCornersPositions(ref cornersIndex, vertices, i);
-            DisplayScreenCorners();
+            if (displayMarkers)
+            {
+                DisplayScreenCorners();
+            }
         }
 
 
@@ -103,6 +111,16 @@ public class CurvedScreen : MonoBehaviour
 
         // Assigne le mesh au MeshCollider
         GetComponent<MeshCollider>().sharedMesh = mesh;
+
+
+
+        centerPoint = transform.position - (transform.forward * curvatureRadius);
+        axisDirection = transform.up;
+        if (displayMarkers && curveCenterPointMarker != null)
+        {
+            curveCenterPointMarker.transform.position = centerPoint;
+            Debug.DrawLine(centerPoint - axisDirection * halfHeight, centerPoint + axisDirection * halfHeight, Color.red, 10f);
+        }
     }
 
 
@@ -110,8 +128,7 @@ public class CurvedScreen : MonoBehaviour
     {
         if (i == 0 || i == segments)
         {
-            cornerPositions[index] = transform.rotation * vertices[i * 2]  + transform.position;
-            cornersMarkers[index].transform.position = cornerPositions[index];
+            cornerPositions[index] = transform.rotation * vertices[i * 2] + transform.position;
             index++;
         }
 
@@ -131,7 +148,10 @@ public class CurvedScreen : MonoBehaviour
     {
         for (int i = 0; i < cornerPositions.Length; i++)
         {
-            cornersMarkers[i].transform.position = cornerPositions[i];
+            if (cornersMarkers[i] != null)
+            {
+                cornersMarkers[i].transform.position = cornerPositions[i];
+            }
         }
     }
 
@@ -139,13 +159,15 @@ public class CurvedScreen : MonoBehaviour
 
 
 
+    public Vector2 GetNormalizedHitPoint(Vector3 hitPoint)
+    {
+        Vector2 normalizedHitPoint = Vector2.zero;
 
-    //public Vector2 GetNormalizedHitPoint(Vector3 hitPoint)
-    //{
+        // h = R sin (angle OA et OC)
 
 
 
-
-
-    //}
+        Debug.Log($"NormalizedHitPoint: {normalizedHitPoint}");
+        return normalizedHitPoint;
+    }
 }
