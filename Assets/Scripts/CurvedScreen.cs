@@ -12,7 +12,6 @@ public class CurvedScreen : MonoBehaviour
 
     [HideInInspector] public Vector3[] cornerPositions = new Vector3[4];
     private Vector3 centerPoint;
-    private Vector3 axisDirection;
 
     public bool displayMarkers = true;
     public GameObject[] cornersMarkers;
@@ -110,18 +109,17 @@ public class CurvedScreen : MonoBehaviour
         meshFilter.mesh = mesh;
 
         GetComponent<MeshCollider>().sharedMesh = mesh;
-        GetCenterPointAndAxisOfTheCurve(halfHeight);
+        GetCurveCenterPoint(halfHeight);
     }
 
 
-    private void GetCenterPointAndAxisOfTheCurve(float halfHeight)
+    private void GetCurveCenterPoint(float halfHeight)
     {
         centerPoint = transform.position - (transform.forward * curvatureRadius);
-        axisDirection = transform.up;
+        
         if (displayMarkers && curveCenterPointMarker != null)
         {
             curveCenterPointMarker.transform.position = centerPoint;
-            Debug.DrawLine(centerPoint - axisDirection * halfHeight, centerPoint + axisDirection * halfHeight, UnityEngine.Color.red, 10f);
         }
     }
 
@@ -159,13 +157,18 @@ public class CurvedScreen : MonoBehaviour
     }
 
 
-
-
-    private Vector3 leftEdgeProjection;
-    private Vector3 rightEdgeProjection;
     public Vector2 GetNormalizedHitPoint(Vector3 hitPoint)
     {
-        GetHitPointProjectionsOnLateralEdges(hitPoint);
+        Vector3 axisDirection = transform.up;
+        Vector3 leftEdgeProjection = ProjectPointOnLine(hitPoint, axisDirection, cornerPositions[0]);
+        Vector3 rightEdgeProjection = ProjectPointOnLine(hitPoint, axisDirection, cornerPositions[2]);
+
+        if (displayMarkers)
+        {
+            leftProjectionPointMarker.transform.position = leftEdgeProjection;
+            rightProjectionPointMarker.transform.position = rightEdgeProjection;
+        }
+
 
         Vector3 fromCenterToLeft = leftEdgeProjection - centerPoint;
         Vector3 fromCenterToRight = rightEdgeProjection - centerPoint;
@@ -185,34 +188,20 @@ public class CurvedScreen : MonoBehaviour
 
 
 
-    private void GetHitPointProjectionsOnLateralEdges(Vector3 point)
-    {
-        leftEdgeProjection = ProjectPointOnLine(point, axisDirection, cornerPositions[0]);
-        rightEdgeProjection = ProjectPointOnLine(point, axisDirection, cornerPositions[2]);
-
-        if (displayMarkers)
-        {
-            leftProjectionPointMarker.transform.position = leftEdgeProjection;
-            rightProjectionPointMarker.transform.position = rightEdgeProjection;
-        }
-    }
-
-
-    public static Vector3 ProjectPointOnLine(Vector3 point, Vector3 lineDirection, Vector3 linePoint)
+    private Vector3 ProjectPointOnLine(Vector3 point, Vector3 lineDirection, Vector3 linePoint)
     {
         // Ensure the direction vector is normalized
-        Vector3 direction = lineDirection.normalized;
+        //Vector3 direction = lineDirection.normalized;
 
         // Vector from the point on the line to the point to be projected
         Vector3 lineToPoint = point - linePoint;
 
         // Project the vector onto the direction of the line
-        float projectionLength = Vector3.Dot(lineToPoint, direction);
+        float projectionLength = Vector3.Dot(lineToPoint, lineDirection);
 
         // Calculate the projection point
-        Vector3 projectionPoint = linePoint + direction * projectionLength;
+        Vector3 projectionPoint = linePoint + lineDirection * projectionLength;        
 
         return projectionPoint;
     }
-
 }
