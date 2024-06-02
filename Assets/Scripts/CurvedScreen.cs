@@ -9,8 +9,9 @@ public class CurvedScreen : MonoBehaviour
     [Range(1f, 20f)] public float curvatureRadius = 5.0f;
     [Range(6, 32)] public int segments = 12;
     [Range(0.1f, 10f)] public float distanceFromPanel = 0.1f;
-    [Range(-1f, -0.1f)] public float raycastZOffset = 1f;
-
+    [Range(0.1f, 1f)] public float raycastZOffset = 1f;
+    public LayerMask raycastMask;
+   
     private Vector3[] cornerPositions = new Vector3[4];
     private Vector3 centerPoint;
     private float width;
@@ -211,16 +212,16 @@ public class CurvedScreen : MonoBehaviour
         if (debug_mode && normalizedHitPoint != lastNormalizedHitPoint)
         {
             lastNormalizedHitPoint = normalizedHitPoint;
-            Debug.Log($"NormalizedHitPoint: {normalizedHitPoint}");
-        }
-        if (debug_mode && leftProjectionPointMarker != null && rightProjectionPointMarker != null)
-        {
-            leftProjectionPointMarker.transform.position = leftEdgeProjection;
-            rightProjectionPointMarker.transform.position = rightEdgeProjection;
+            //Debug.Log($"NormalizedHitPoint: {normalizedHitPoint}");
+
+            if (leftProjectionPointMarker != null && rightProjectionPointMarker != null)
+            {
+                leftProjectionPointMarker.transform.position = leftEdgeProjection;
+                rightProjectionPointMarker.transform.position = rightEdgeProjection;
+            }
         }
 
         CastRayToPanel(normalizedHitPoint);
-        //return normalizedHitPoint;
     }
 
 
@@ -230,13 +231,27 @@ public class CurvedScreen : MonoBehaviour
         float localY = (normalizedHitPoint.y - 0.5f) * height;
         Vector3 localPoint = new Vector3(localX, localY, 0);
         Vector3 rotatedPoint = panelRectTransform.rotation * localPoint;
-        Vector3 offset = panelRectTransform.forward * raycastZOffset;
+        Vector3 offset = panelRectTransform.forward * -raycastZOffset;
         Vector3 raycastOrigin = panelRectTransform.position + rotatedPoint + offset;
+        Vector3 raycastDirection = panelRectTransform.forward;
 
-
-        if (debug_mode && raycasOriginMarker != null)
+        if (debug_mode)
         {
-            raycasOriginMarker.transform.position = raycastOrigin;
+            Debug.DrawLine(raycastOrigin, raycastOrigin + (raycastDirection * raycastZOffset), UnityEngine.Color.red);
+
+            if (raycasOriginMarker != null)
+            {
+                raycasOriginMarker.transform.position = raycastOrigin;
+            }
+        }
+
+        RaycastHit hit;
+        if (Physics.Raycast(raycastOrigin, raycastDirection, out hit, raycastZOffset * 1.1f , raycastMask))
+        {
+            if (hit.collider.gameObject.TryGetComponent(out TestButton tb))
+            {
+                tb.ButtonHovered();
+            }
         }
     }
 
