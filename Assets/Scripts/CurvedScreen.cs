@@ -18,6 +18,7 @@ public class CurvedScreen : MonoBehaviour
     public GameObject curveCenterPointMarker;
     public GameObject leftProjectionPointMarker;
     public GameObject rightProjectionPointMarker;
+    //public GameObject curveAxisProjectionPointMarker;
 
 
     private void Awake()
@@ -159,17 +160,10 @@ public class CurvedScreen : MonoBehaviour
 
     public Vector2 GetNormalizedHitPoint(Vector3 hitPoint)
     {
+        // X
         Vector3 axisDirection = transform.up;
         Vector3 leftEdgeProjection = ProjectPointOnLine(hitPoint, axisDirection, cornerPositions[0]);
         Vector3 rightEdgeProjection = ProjectPointOnLine(hitPoint, axisDirection, cornerPositions[2]);
-
-        if (displayMarkers)
-        {
-            leftProjectionPointMarker.transform.position = leftEdgeProjection;
-            rightProjectionPointMarker.transform.position = rightEdgeProjection;
-        }
-
-
         Vector3 fromCenterToLeft = leftEdgeProjection - centerPoint;
         Vector3 fromCenterToRight = rightEdgeProjection - centerPoint;
         Vector3 fromCenterToHitPoint = hitPoint - centerPoint;
@@ -177,11 +171,21 @@ public class CurvedScreen : MonoBehaviour
         float rightAngle = Vector3.Angle(fromCenterToRight, fromCenterToHitPoint);
         float x = leftAngle / (leftAngle + rightAngle);
 
-        float y = 0;
+
+        // Y
+        Vector3 cornerDownLeft = cornerPositions[0];
+        float disanceToCorner = Vector3.Distance(cornerDownLeft, leftEdgeProjection);
+        float y = disanceToCorner / height;
 
         Vector2 normalizedHitPoint = new Vector2(x, y);
 
-        Debug.Log($"left angle = {leftAngle}, right angle = {rightAngle}. NormalizedHitPoint.x: {x}");
+        Debug.Log($"Distance to corner = {disanceToCorner}. NormalizedHitPoint: {normalizedHitPoint}");
+        if (displayMarkers)
+        {
+            leftProjectionPointMarker.transform.position = leftEdgeProjection;
+            rightProjectionPointMarker.transform.position = rightEdgeProjection;
+            //curveAxisProjectionPointMarker.transform.position = curveAxisProjection;
+        }
 
         return normalizedHitPoint;
     }
