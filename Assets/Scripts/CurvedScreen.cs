@@ -5,8 +5,8 @@ using UnityEngine;
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
 public class CurvedScreen : MonoBehaviour
 {
-    [Range(1f, 10f)] public float width = 2.0f;
-    [Range(1f, 10f)] public float height = 2.0f;
+    private float width;
+    private float height;
     [Range(1f, 20f)] public float curvatureRadius = 5.0f;
     [Range(6, 32)] public int segments = 12;
 
@@ -18,11 +18,14 @@ public class CurvedScreen : MonoBehaviour
     public GameObject curveCenterPointMarker;
     public GameObject leftProjectionPointMarker;
     public GameObject rightProjectionPointMarker;
-    //public GameObject curveAxisProjectionPointMarker;
+
+    [Space(10)]
+    public RectTransform panelRectTransform;
 
 
     private void Awake()
     {
+        SetScreenDimensions();
         GenerateCurvedMesh();
     }
 
@@ -34,7 +37,16 @@ public class CurvedScreen : MonoBehaviour
     }
 
 
-    void GenerateCurvedMesh()
+    
+
+    public void SetScreenDimensions()
+    {
+        width = panelRectTransform.rect.width;
+        height = panelRectTransform.rect.height;
+    }
+
+
+    private void GenerateCurvedMesh()
     {
         int cornersIndex = 0;
 
@@ -177,19 +189,18 @@ public class CurvedScreen : MonoBehaviour
         float disanceToCorner = Vector3.Distance(cornerDownLeft, leftEdgeProjection);
         float y = disanceToCorner / height;
 
+
         Vector2 normalizedHitPoint = new Vector2(x, y);
 
-        Debug.Log($"Distance to corner = {disanceToCorner}. NormalizedHitPoint: {normalizedHitPoint}");
+        Debug.Log($"NormalizedHitPoint: {normalizedHitPoint}");
         if (displayMarkers)
         {
             leftProjectionPointMarker.transform.position = leftEdgeProjection;
             rightProjectionPointMarker.transform.position = rightEdgeProjection;
-            //curveAxisProjectionPointMarker.transform.position = curveAxisProjection;
         }
 
         return normalizedHitPoint;
     }
-
 
 
     private Vector3 ProjectPointOnLine(Vector3 point, Vector3 lineDirection, Vector3 linePoint)
