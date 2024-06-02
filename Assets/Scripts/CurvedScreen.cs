@@ -5,41 +5,57 @@ using UnityEngine;
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
 public class CurvedScreen : MonoBehaviour
 {
-    private float width;
-    private float height;
+    public RectTransform panelRectTransform;
     [Range(1f, 20f)] public float curvatureRadius = 5.0f;
     [Range(6, 32)] public int segments = 12;
+    [Range(0.1f, 10f)] public float distanceFromPanel = 0.1f;
+    [Range(-1f, -0.1f)] public float raycastZOffset = 1f;
 
-    [HideInInspector] public Vector3[] cornerPositions = new Vector3[4];
+    private Vector3[] cornerPositions = new Vector3[4];
     private Vector3 centerPoint;
+    private float width;
+    private float height;
 
-    public bool displayMarkers = true;
+    [Space(10), Header("Debug")]
+    public bool debug_mode = true;
     public GameObject[] cornersMarkers;
     public GameObject curveCenterPointMarker;
     public GameObject leftProjectionPointMarker;
     public GameObject rightProjectionPointMarker;
+    public GameObject raycasOriginMarker;
+    private Vector2 lastNormalizedHitPoint; // Just for the log.
 
-    [Space(10)]
-    public RectTransform panelRectTransform;
+
+    // DEBUG
+    //private void Update()
+    //{
+    //    GenerateCurvedMesh();
+    //}
 
 
     private void Awake()
     {
+        Initialize();
+    }
+
+
+
+    private void Initialize()
+    {
+        SetPosition();
         SetScreenDimensions();
         GenerateCurvedMesh();
     }
 
 
-    // DEBUG
-    private void Update()
+    private void SetPosition()
     {
-        GenerateCurvedMesh();
+        transform.position = panelRectTransform.position - panelRectTransform.forward * distanceFromPanel;
+        transform.rotation = panelRectTransform.rotation;
     }
 
 
-
-
-    public void SetScreenDimensions()
+    private void SetScreenDimensions()
     {
         width = panelRectTransform.rect.width;
         height = panelRectTransform.rect.height;
@@ -89,7 +105,7 @@ public class CurvedScreen : MonoBehaviour
 
 
             GetCornersPositions(ref cornersIndex, vertices, i);
-            if (displayMarkers)
+            if (debug_mode)
             {
                 DisplayScreenCorners();
             }
@@ -130,7 +146,7 @@ public class CurvedScreen : MonoBehaviour
     {
         centerPoint = transform.position - (transform.forward * curvatureRadius);
 
-        if (displayMarkers && curveCenterPointMarker != null)
+        if (debug_mode && curveCenterPointMarker != null)
         {
             curveCenterPointMarker.transform.position = centerPoint;
         }
@@ -170,8 +186,7 @@ public class CurvedScreen : MonoBehaviour
     }
 
 
-    private Vector2 lastNormalizedHitPoint;
-    public Vector2 GetNormalizedHitPoint(Vector3 hitPoint)
+    public void Hit(Vector3 hitPoint)
     {
         // X
         Vector3 axisDirection = transform.up;
@@ -193,19 +208,38 @@ public class CurvedScreen : MonoBehaviour
 
         Vector2 normalizedHitPoint = new Vector2(x, y);
 
-        if (normalizedHitPoint != lastNormalizedHitPoint)
+        if (debug_mode && normalizedHitPoint != lastNormalizedHitPoint)
         {
             lastNormalizedHitPoint = normalizedHitPoint;
             Debug.Log($"NormalizedHitPoint: {normalizedHitPoint}");
         }
-        if (displayMarkers)
+        if (debug_mode && leftProjectionPointMarker != null && rightProjectionPointMarker != null)
         {
             leftProjectionPointMarker.transform.position = leftEdgeProjection;
             rightProjectionPointMarker.transform.position = rightEdgeProjection;
         }
 
-        return normalizedHitPoint;
+        CastRayToPanel(normalizedHitPoint);
+        //return normalizedHitPoint;
     }
+
+
+    public void CastRayToPanel(Vector2 normalizedHitPoint)
+    {
+        float localX = (normalizedHitPoint.x - 0.5f) * width;
+        float localY = (normalizedHitPoint.y - 0.5f) * height;
+        Vector3 localPoint = new Vector3(localX, localY, 0);
+        Vector3 rotatedPoint = panelRectTransform.rotation * localPoint;
+        Vector3 offset = panelRectTransform.forward * raycastZOffset;
+        Vector3 raycastOrigin = panelRectTransform.position + rotatedPoint + offset;
+
+
+        if (debug_mode && raycasOriginMarker != null)
+        {
+            raycasOriginMarker.transform.position = raycastOrigin;
+        }
+    }
+
 
 
     private Vector3 ProjectPointOnLine(Vector3 point, Vector3 lineDirection, Vector3 linePoint)

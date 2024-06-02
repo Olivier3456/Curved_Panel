@@ -320,10 +320,8 @@ GameObject:
   - component: {fileID: 346168656}
   - component: {fileID: 346168655}
   - component: {fileID: 346168658}
-  - component: {fileID: 346168654}
   - component: {fileID: 346168659}
-  - component: {fileID: 346168660}
-  - component: {fileID: 346168661}
+  - component: {fileID: 346168654}
   m_Layer: 0
   m_Name: CurvedScreen
   m_TagString: Untagged
@@ -343,14 +341,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7373e70a65c8cb4d9be771758476365, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  curvatureRadius: 20
+  panelRectTransform: {fileID: 258393945}
+  curvatureRadius: 7
   segments: 32
-  cornerPositions:
-  - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 0}
-  displayMarkers: 1
+  distanceFromPanel: 7.5
+  raycastZOffset: -1
+  debug_mode: 1
   cornersMarkers:
   - {fileID: 1439648434}
   - {fileID: 959365749}
@@ -359,7 +355,7 @@ MonoBehaviour:
   curveCenterPointMarker: {fileID: 153677398}
   leftProjectionPointMarker: {fileID: 1107113037}
   rightProjectionPointMarker: {fileID: 1034603652}
-  panelRectTransform: {fileID: 258393945}
+  raycasOriginMarker: {fileID: 1076143588}
 --- !u!23 &346168655
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -463,33 +459,6 @@ MonoBehaviour:
   screenToDisplayPanel: {fileID: 346168655}
   pixelsPerMeter: 256
   debug_Mat: {fileID: 2100000, guid: c7895cdf6cb20cc45901621711ffc48f, type: 2}
---- !u!114 &346168660
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 346168653}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 61cc649aeace1b24e8288a9d8d502bd9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  panelRectTransform: {fileID: 258393945}
-  distanceFromPanel: 10
---- !u!114 &346168661
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 346168653}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6b86b813375378f4eb2ac1fc205aef4c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  panelRectTransform: {fileID: 258393945}
 --- !u!1 &395678035
 GameObject:
   m_ObjectHideFlags: 0
@@ -1227,6 +1196,89 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1299614606}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1076143588
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1076143589}
+  - component: {fileID: 1076143591}
+  - component: {fileID: 1076143590}
+  m_Layer: 0
+  m_Name: '[Debug] Raycast Origin Marker'
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1076143589
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1076143588}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 10001.447, y: 0, z: 0}
+  m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 1299614606}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &1076143590
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1076143588}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: 5ae1515dc134bfa44a979669d7c06038, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &1076143591
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1076143588}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &1107113037
 GameObject:
   m_ObjectHideFlags: 0
@@ -1348,6 +1400,7 @@ Transform:
   - {fileID: 1107113040}
   - {fileID: 1034603655}
   - {fileID: 994752048}
+  - {fileID: 1076143589}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1439648434
