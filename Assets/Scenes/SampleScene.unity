@@ -350,7 +350,7 @@ MonoBehaviour:
   raycastMask:
     serializedVersion: 2
     m_Bits: 64
-  debug_mode: 1
+  debug_mode: 0
   cornersMarkers:
   - {fileID: 1439648434}
   - {fileID: 959365749}
