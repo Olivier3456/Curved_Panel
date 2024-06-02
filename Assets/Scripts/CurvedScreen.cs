@@ -37,7 +37,7 @@ public class CurvedScreen : MonoBehaviour
     }
 
 
-    
+
 
     public void SetScreenDimensions()
     {
@@ -129,7 +129,7 @@ public class CurvedScreen : MonoBehaviour
     private void GetCurveCenterPoint(float halfHeight)
     {
         centerPoint = transform.position - (transform.forward * curvatureRadius);
-        
+
         if (displayMarkers && curveCenterPointMarker != null)
         {
             curveCenterPointMarker.transform.position = centerPoint;
@@ -170,6 +170,7 @@ public class CurvedScreen : MonoBehaviour
     }
 
 
+    private Vector2 lastNormalizedHitPoint;
     public Vector2 GetNormalizedHitPoint(Vector3 hitPoint)
     {
         // X
@@ -192,7 +193,11 @@ public class CurvedScreen : MonoBehaviour
 
         Vector2 normalizedHitPoint = new Vector2(x, y);
 
-        Debug.Log($"NormalizedHitPoint: {normalizedHitPoint}");
+        if (normalizedHitPoint != lastNormalizedHitPoint)
+        {
+            lastNormalizedHitPoint = normalizedHitPoint;
+            Debug.Log($"NormalizedHitPoint: {normalizedHitPoint}");
+        }
         if (displayMarkers)
         {
             leftProjectionPointMarker.transform.position = leftEdgeProjection;
@@ -215,7 +220,7 @@ public class CurvedScreen : MonoBehaviour
         float projectionLength = Vector3.Dot(lineToPoint, lineDirection);
 
         // Calculate the projection point
-        Vector3 projectionPoint = linePoint + lineDirection * projectionLength;        
+        Vector3 projectionPoint = linePoint + lineDirection * projectionLength;
 
         return projectionPoint;
     }
