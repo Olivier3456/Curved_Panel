@@ -2,12 +2,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CastRay : MonoBehaviour
+public class Tests : MonoBehaviour
 {
 
     public GameObject hitPointMarker;
 
     private GameObject currentHitGo = null;
+
+    public RectTransform panelRectTransform;
+
+
+
+    private void Start()
+    {
+        CurvedScreen.CreateCurvedPanel(panelRectTransform, 5);
+    }
+
+
+
+
+
 
 
     void Update()

@@ -4,7 +4,7 @@ public class TestButton : MonoBehaviour
 {
     public void ButtonHovered()
     {
-        Debug.Log("Button hovered!");
+        //Debug.Log("Button hovered!");
     }
 
 
