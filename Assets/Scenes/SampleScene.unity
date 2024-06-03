@@ -321,7 +321,6 @@ GameObject:
   - component: {fileID: 346168656}
   - component: {fileID: 346168655}
   - component: {fileID: 346168658}
-  - component: {fileID: 346168659}
   - component: {fileID: 346168654}
   m_Layer: 0
   m_Name: CurvedScreen
@@ -342,14 +341,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7373e70a65c8cb4d9be771758476365, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  panelRectTransform: {fileID: 258393945}
-  curvatureRadius: 7
-  segments: 32
-  distanceFromPanel: 7.5
-  raycastZOffset: 1
-  raycastMask:
-    serializedVersion: 2
-    m_Bits: 64
+  pixelsPerMeter: 256
   debug_mode: 0
   cornersMarkers:
   - {fileID: 1439648434}
@@ -360,6 +352,7 @@ MonoBehaviour:
   leftProjectionPointMarker: {fileID: 1107113037}
   rightProjectionPointMarker: {fileID: 1034603652}
   raycasOriginMarker: {fileID: 1076143588}
+  debug_panelRectTransform: {fileID: 258393945}
 --- !u!23 &346168655
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -447,22 +440,6 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
---- !u!114 &346168659
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 346168653}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d887fea206627a143819ed2182dd0ae9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  panelRectTransform: {fileID: 258393945}
-  screenToDisplayPanel: {fileID: 346168655}
-  pixelsPerMeter: 256
-  debug_Mat: {fileID: 2100000, guid: c7895cdf6cb20cc45901621711ffc48f, type: 2}
 --- !u!1 &395678035
 GameObject:
   m_ObjectHideFlags: 0
