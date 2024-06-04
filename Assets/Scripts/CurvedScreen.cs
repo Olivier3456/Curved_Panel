@@ -186,7 +186,6 @@ public class CurvedScreen : MonoBehaviour
         meshFilter.mesh = mesh;
 
         GetComponent<MeshCollider>().sharedMesh = mesh;
-        GetCurveCenterPoint();
     }
 
 
@@ -240,7 +239,7 @@ public class CurvedScreen : MonoBehaviour
 
 
     /// <summary>
-    /// Send a raycast to the real panel, after calculating the good coordinates.
+    /// Sends a raycast to the real panel, after calculating the good coordinates. Returns the GameObject hit.
     /// </summary>
     /// <param name="hitPoint">The world coordinates of the raycast hit point.</param>
     public GameObject Hit(Vector3 hitPoint)
