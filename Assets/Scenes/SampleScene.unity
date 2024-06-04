@@ -218,7 +218,7 @@ GameObject:
   - component: {fileID: 258393944}
   - component: {fileID: 258393943}
   - component: {fileID: 258393942}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -501,7 +501,7 @@ GameObject:
   - component: {fileID: 461901123}
   - component: {fileID: 461901125}
   - component: {fileID: 461901124}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1302,7 +1302,7 @@ GameObject:
   - component: {fileID: 1446588867}
   - component: {fileID: 1446588870}
   - component: {fileID: 1446588871}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1701,7 +1701,7 @@ GameObject:
   - component: {fileID: 1993672887}
   - component: {fileID: 1993672889}
   - component: {fileID: 1993672888}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Background Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1777,7 +1777,7 @@ GameObject:
   - component: {fileID: 2019920891}
   - component: {fileID: 2019920893}
   - component: {fileID: 2019920892}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

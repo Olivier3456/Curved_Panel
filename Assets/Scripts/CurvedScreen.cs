@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider))]
 public class CurvedScreen : MonoBehaviour
@@ -23,26 +22,6 @@ public class CurvedScreen : MonoBehaviour
     public GameObject rightProjectionPointMarker;
     public GameObject raycasOriginMarker;
 
-    private GameObject objectOvered = null;
-    private Button buttonHovered = null;
-
-
-    // For Metiers360 buttons to be catched by Controller and VRGaze classes.
-    public new T GetComponent<T>() where T : Component
-    {
-        if (typeof(T) != typeof(Button))
-        {
-            //Debug.Log("Overriden GetComponent<>() called.");
-            return base.GetComponent<T>();
-        }
-        else
-        {
-            // Retourne myButton casté en T
-            //return myButton as T;
-            return buttonHovered as T;
-        }
-    }
-
 
     /// <summary>
     /// Initializes and shows the curved panel.
@@ -50,26 +29,38 @@ public class CurvedScreen : MonoBehaviour
     /// <param name="panelRectTransform">Rect transform of the 2D panel to render in 3D. The object must be on the layer designed for Curved UI elements.</param>
     /// <param name="curvatureRadius">The radius of the curve.</param>
     /// <param name="segments">The number of segments of the curve.</param>
-    /// <param name="layerMask">Must be set to the Curved UI layer. MAIN CAMERA CULLING MASK MUST EXCLUDE THIS LAYER.</param>
     /// <param name="pixelsPerMeter">Number of pixels of the render texture displayed on the curved panel, per meter of the original 2D panel.</param>
     /// <param name="raycastZOffset">The distance of the origin of the raycast witch shoots the original 2D panel.</param>
     /// <param name="distanceFromPanel">The distance of the curved screen from the position of the original 2D panel.</param>
-    public static CurvedScreen CreateCurvedPanel(RectTransform panelRectTransform, float curvatureRadius, int segments = 24, int layerMask = 64, int pixelsPerMeter = 256, float raycastZOffset = 0.5f, float distanceFromPanel = 0.25f)
+    public static CurvedScreen CreateCurvedPanel(RectTransform panelRectTransform, float curvatureRadius, int segments = 24, int pixelsPerMeter = 256, float raycastZOffset = 0.5f, float distanceFromPanel = 0.25f)
     {
+        // Sets the orinal 2D panel on the right layer: it won't be saw by the main camera, only by its own camera. Same thing for raycasts.
+        SetPanelToCurvedLayer(panelRectTransform);
+
         GameObject go = new GameObject($"{panelRectTransform.gameObject.name} curved panel");
         CurvedScreen cs = go.AddComponent<CurvedScreen>();
-        cs.Initialize(panelRectTransform, curvatureRadius, segments, layerMask, pixelsPerMeter, raycastZOffset, distanceFromPanel);
+        cs.Initialize(panelRectTransform, curvatureRadius, segments, pixelsPerMeter, raycastZOffset, distanceFromPanel);
         return cs;
     }
 
 
-    private void Initialize(RectTransform panelRectTransform, float curvatureRadius, int segments = 24, int layerMask = 64, int pixelsPerMeter = 256, float raycastZOffset = 0.5f, float distanceFromPanel = 0.25f)
+    private static void SetPanelToCurvedLayer(Transform panelRectTransform)
+    {
+        panelRectTransform.gameObject.layer = LayerMask.NameToLayer("Curved UI");
+
+        foreach (Transform tr in panelRectTransform)
+        {
+            SetPanelToCurvedLayer(tr);
+        }
+    }
+
+
+    private void Initialize(RectTransform panelRectTransform, float curvatureRadius, int segments = 24, int pixelsPerMeter = 256, float raycastZOffset = 0.5f, float distanceFromPanel = 0.25f)
     {
         this.panelRectTransform = panelRectTransform;
         this.curvatureRadius = curvatureRadius;
         this.raycastZOffset = raycastZOffset;
-        this.layerMask = layerMask;
-
+        layerMask = LayerMask.GetMask("Curved UI");
 
         SetPosition(distanceFromPanel);
         SetScreenDimensions();
@@ -252,7 +243,7 @@ public class CurvedScreen : MonoBehaviour
     /// Send a raycast to the real panel, after calculating the good coordinates.
     /// </summary>
     /// <param name="hitPoint">The world coordinates of the raycast hit point.</param>
-    public void Hit(Vector3 hitPoint)
+    public GameObject Hit(Vector3 hitPoint)
     {
         // X
         Vector3 centerPoint = GetCurveCenterPoint();
@@ -281,11 +272,11 @@ public class CurvedScreen : MonoBehaviour
             rightProjectionPointMarker.transform.position = rightEdgeProjection;
         }
 
-        CastRayToPanel(normalizedHitPoint);
+        return CastRayToPanel(normalizedHitPoint);
     }
 
 
-    private void CastRayToPanel(Vector2 normalizedHitPoint)
+    private GameObject CastRayToPanel(Vector2 normalizedHitPoint)
     {
         float localX = (normalizedHitPoint.x - 0.5f) * width;
         float localY = (normalizedHitPoint.y - 0.5f) * height;
@@ -297,7 +288,7 @@ public class CurvedScreen : MonoBehaviour
 
         if (debug_mode)
         {
-            Debug.DrawLine(raycastOrigin, raycastOrigin + (raycastDirection * raycastZOffset), UnityEngine.Color.red);
+            Debug.DrawLine(raycastOrigin, raycastOrigin + (raycastDirection * raycastZOffset * 1.1f), Color.red);
 
             if (raycasOriginMarker != null)
             {
@@ -308,21 +299,11 @@ public class CurvedScreen : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(raycastOrigin, raycastDirection, out hit, raycastZOffset * 1.1f, layerMask))
         {
-            objectOvered = hit.collider.gameObject;
-
-            if (hit.collider.gameObject.TryGetComponent(out Button bt))
-            {
-                buttonHovered = bt;
-            }
-            else
-            {
-                buttonHovered = null;
-            }
+            return hit.collider.gameObject;
         }
-        else // This case should never happen : the raycast is always pointed towards the panel.
+        else
         {
-            buttonHovered = null;
-            objectOvered = null;
+            return null;
         }
     }
 

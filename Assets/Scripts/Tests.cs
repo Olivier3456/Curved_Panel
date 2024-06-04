@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Tests : MonoBehaviour
@@ -15,7 +13,7 @@ public class Tests : MonoBehaviour
 
     private void Start()
     {
-        CurvedScreen.CreateCurvedPanel(panelRectTransform, 5);
+        CurvedScreen.CreateCurvedPanel(panelRectTransform, 5, 24, 256, 0.5f, 5);
     }
 
 
@@ -35,16 +33,13 @@ public class Tests : MonoBehaviour
 
         if (Physics.Raycast(origin, direction, out hit, distance))
         {
-            if (currentHitGo != hit.collider.gameObject)
+            if (hit.collider.gameObject.TryGetComponent(out CurvedScreen cs))
             {
-                currentHitGo = hit.collider.gameObject;
-
-                //Debug.Log($"Touched Something: {hit.collider.name}.");
-            }
-
-            if (currentHitGo.transform.TryGetComponent(out CurvedScreen cs))
-            {
-                cs.Hit(hit.point);
+                GameObject go = cs.Hit(hit.point);
+                if (go != null && go.TryGetComponent(out TestButton tbt))
+                {
+                    tbt.ButtonHovered();
+                }
             }
 
             if (hitPointMarker != null)

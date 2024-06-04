@@ -2,9 +2,11 @@ using UnityEngine;
 
 public class TestButton : MonoBehaviour
 {
+    int hoveredCount = 0;
+
     public void ButtonHovered()
     {
-        //Debug.Log("Button hovered!");
+        Debug.Log("Button hovered! " + hoveredCount++);
     }
 
 
