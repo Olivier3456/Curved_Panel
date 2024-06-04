@@ -91,6 +91,7 @@ public class CurvedScreen : MonoBehaviour
         cam.clearFlags = CameraClearFlags.SolidColor;
         cam.backgroundColor = new Color(0, 0, 0, 0);
         cam.orthographic = true;
+        cam.orthographicSize = 5 * panelRectTransform.localScale.x;
         cam.cullingMask = layerMask;
         cam.nearClipPlane = 0.01f;
         cam.targetTexture = rdTex;
