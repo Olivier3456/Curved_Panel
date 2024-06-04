@@ -76,8 +76,8 @@ public class CurvedScreen : MonoBehaviour
 
     private void CreateRenderTexture(int pixelsPerMeter)
     {
-        float width = panelRectTransform.rect.width * pixelsPerMeter;
-        float height = panelRectTransform.rect.height * pixelsPerMeter;
+        float width = panelRectTransform.rect.width * pixelsPerMeter * panelRectTransform.localScale.x;
+        float height = panelRectTransform.rect.height * pixelsPerMeter * panelRectTransform.localScale.y;
 
         rdTex = new RenderTexture((int)width, (int)height, 24);
 
@@ -106,8 +106,8 @@ public class CurvedScreen : MonoBehaviour
 
     private void SetScreenDimensions()
     {
-        width = panelRectTransform.rect.width;
-        height = panelRectTransform.rect.height;
+        width = panelRectTransform.rect.width * panelRectTransform.localScale.x;
+        height = panelRectTransform.rect.height * panelRectTransform.localScale.y;
     }
 
 
