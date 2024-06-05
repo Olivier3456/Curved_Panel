@@ -13,7 +13,7 @@ public class Tests : MonoBehaviour
 
     private void Start()
     {
-        CurvedScreen.CreateCurvedPanel(panelRectTransform, 5, 24, 256, 0.5f, 5);
+        CurvedScreen.Create(panelRectTransform, 5, 24, 256, 0.5f, 5);
     }
 
 
