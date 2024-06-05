@@ -91,7 +91,14 @@ public class CurvedScreen : MonoBehaviour
         cam.clearFlags = CameraClearFlags.SolidColor;
         cam.backgroundColor = new Color(0, 0, 0, 0);
         cam.orthographic = true;
-        cam.orthographicSize = 5 * panelRectTransform.localScale.x;
+
+        // Setting the orthographic size and ratio of the camera:
+        float height = panelRectTransform.rect.height * panelRectTransform.localScale.y;
+        float width = panelRectTransform.rect.width * panelRectTransform.localScale.x;
+        cam.orthographicSize = height * 0.5f;
+        float aspectRatio = width / height;
+        cam.aspect = aspectRatio;
+
         cam.cullingMask = layerMask;
         cam.nearClipPlane = 0.01f;
         cam.targetTexture = rdTex;
