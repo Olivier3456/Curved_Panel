@@ -7,76 +7,72 @@ public class CurvedScreen : MonoBehaviour
     private RectTransform panelRectTransform;
     private float curvatureRadius;
     private float raycastZOffset;
-    private LayerMask layerMask;
 
     private Vector3[] cornerPositions = new Vector3[4]; // Corners position of the curved screen.
     private float width;
     private float height;
 
+    private GameObject cameraGameObject;
     private RenderTexture rdTex;
 
-    [Space(10), Header("Debug")]
-    public bool debug_mode = true;
-    public GameObject[] cornersMarkers;
-    public GameObject curveCenterPointMarker;
-    public GameObject leftProjectionPointMarker;
-    public GameObject rightProjectionPointMarker;
-    public GameObject raycasOriginMarker;
+    
+    private static LayerMask layerMask = LayerMask.GetMask(Conf.CURVED_UI_LAYER);
 
-
-    private static List<CurvedScreen> instantiatedCurvedScreens = new List<CurvedScreen>();
+    private static List<CurvedScreen> curvedScreensInstantiated = new List<CurvedScreen>();
 
 
 
     /// <summary>
     /// Initializes and shows the curved panel.
     /// </summary>
-    /// <param name="panelRectTransform">Rect transform of the 2D panel to render in 3D. The object must be on the layer designed for Curved UI elements.</param>
+    /// <param name="panelRectTransform">Rect trans of the 2D panel to render in 3D. The object must be on the layer designed for Curved UI elements.</param>
     /// <param name="curvatureRadius">The radius of the curve.</param>
     /// <param name="segments">The number of segments of the curve.</param>
     /// <param name="pixelsPerMeter">Number of pixels of the render texture displayed on the curved panel, per meter of the original 2D panel.</param>
-    /// <param name="raycastZOffset">The distance of the origin of the raycast witch shoots the original 2D panel.</param>
     /// <param name="distanceFromPanel">The distance of the curved screen from the position of the original 2D panel.</param>
-    public static CurvedScreen Create(RectTransform panelRectTransform, float curvatureRadius, int segments = 24, int pixelsPerMeter = 256, float raycastZOffset = 0.5f, float distanceFromPanel = 0.25f)
+    /// <param name="raycastZOffset">The distance of the origin of the raycast witch shoots the original 2D panel.</param>
+    public static CurvedScreen Create(RectTransform panelRectTransform, float curvatureRadius = 5f, int segments = 24, int pixelsPerMeter = 256, float distanceFromPanel = 0f, float raycastZOffset = 0.5f)
     {
-        // Sets the orinal 2D panel on the right layer: it won't be saw by the main camera, only by its own camera. Same thing for raycasts.
-        SetPanelToCurvedLayer(panelRectTransform);
+        // Sets the orinal 2D panel on the appropriate layer: it won't be saw by the main camera, only by its own camera. Same thing for raycasts.
+        int layer = LayerMask.NameToLayer(Conf.CURVED_UI_LAYER);
+        SetLayer(panelRectTransform, layer);
 
-        GameObject go = new GameObject($"{panelRectTransform.gameObject.name} curved panel");
+        GameObject go = new GameObject($"Curved screen {panelRectTransform.gameObject.name}");
         CurvedScreen cs = go.AddComponent<CurvedScreen>();
-        cs.Initialize(panelRectTransform, curvatureRadius, segments, pixelsPerMeter, raycastZOffset, distanceFromPanel);
-        instantiatedCurvedScreens.Add(cs);
+        cs.Initialize(panelRectTransform, curvatureRadius, segments, pixelsPerMeter, distanceFromPanel, raycastZOffset);
+
+        curvedScreensInstantiated.Add(cs);
+
         return cs;
     }
 
 
-    private static void SetPanelToCurvedLayer(Transform panelRectTransform)
+    private static void SetLayer(Transform transform, int layer)
     {
-        panelRectTransform.gameObject.layer = LayerMask.NameToLayer("Curved UI");
+        transform.gameObject.layer = layer;
 
-        foreach (Transform tr in panelRectTransform)
+        foreach (Transform trans in transform)
         {
-            SetPanelToCurvedLayer(tr);
+            SetLayer(trans, layer);
         }
     }
 
 
-    private void Initialize(RectTransform panelRectTransform, float curvatureRadius, int segments = 24, int pixelsPerMeter = 256, float raycastZOffset = 0.5f, float distanceFromPanel = 0.25f)
+    private void Initialize(RectTransform panelRectTransform, float curvatureRadius, int segments, int pixelsPerMeter, float distanceFromPanel, float raycastZOffset)
     {
         this.panelRectTransform = panelRectTransform;
         this.curvatureRadius = curvatureRadius;
         this.raycastZOffset = raycastZOffset;
-        layerMask = LayerMask.GetMask("Curved UI");
 
-        SetPosition(distanceFromPanel);
+        SetPosition(gameObject, distanceFromPanel);
         SetScreenDimensions();
         GenerateCurvedMesh(segments);
 
         CreateRenderTexture(pixelsPerMeter);
-        Material mat = new Material(Shader.Find("Unlit/Transparent"));   // DON'T FORGET TO INCLUDE THIS SHADER IN "ALWAYS INCLUDED SHADERS" LIST
+        Material mat = new Material(Shader.Find("Unlit/Transparent"));
         mat.mainTexture = rdTex;
         GetComponent<Renderer>().material = mat;
-        SetupCamera(panelRectTransform);
+        SetupCamera();
     }
 
 
@@ -91,14 +87,23 @@ public class CurvedScreen : MonoBehaviour
     }
 
 
-    private void SetupCamera(RectTransform rectTransform)
+    private void SetupCamera()
     {
-        Camera cam = gameObject.AddComponent<Camera>();
+        cameraGameObject = new GameObject("Curved Screen Camera");
+
+        float camOffset = 0.1f;
+        SetPosition(cameraGameObject, camOffset);
+        cameraGameObject.transform.SetParent(panelRectTransform);
+
+        //Camera cam = gameObject.AddComponent<Camera>();
+        Camera cam = cameraGameObject.AddComponent<Camera>();
         cam.clearFlags = CameraClearFlags.SolidColor;
         cam.backgroundColor = new Color(0, 0, 0, 0);
         cam.orthographic = true;
+        
+        cam.nearClipPlane = camOffset - 0.01f;
+        cam.farClipPlane = camOffset + 0.01f;
 
-        // Setting the orthographic size and ratio of the camera:
         float height = panelRectTransform.rect.height * panelRectTransform.localScale.y;
         float width = panelRectTransform.rect.width * panelRectTransform.localScale.x;
         cam.orthographicSize = height * 0.5f;
@@ -106,15 +111,14 @@ public class CurvedScreen : MonoBehaviour
         cam.aspect = aspectRatio;
 
         cam.cullingMask = layerMask;
-        cam.nearClipPlane = 0.01f;
         cam.targetTexture = rdTex;
     }
 
 
-    private void SetPosition(float distanceFromPanel)
+    private void SetPosition(GameObject go, float distanceFromPanel)
     {
-        transform.position = panelRectTransform.position - panelRectTransform.forward * distanceFromPanel;
-        transform.rotation = panelRectTransform.rotation;
+        go.transform.position = panelRectTransform.position - panelRectTransform.forward * distanceFromPanel;
+        go.transform.rotation = panelRectTransform.rotation;
     }
 
 
@@ -133,59 +137,39 @@ public class CurvedScreen : MonoBehaviour
 
         Mesh mesh = new Mesh();
 
-        // Nombre total de vertices (chaque segment a deux vertices en haut et en bas)
         int vertexCount = (segments + 1) * 2;
         Vector3[] vertices = new Vector3[vertexCount];
         Vector2[] uv = new Vector2[vertexCount];
-        // Chaque segment a deux triangles (6 indices par segment)
         int[] triangles = new int[segments * 6];
-
         float halfHeight = height / 2.0f;
-        // Calcule l'angle total que l'écran doit couvrir
         float angleExtent = width / curvatureRadius;
-        // Divise l'angle total par le nombre de segments
         float angleStep = angleExtent / segments;
 
-        // Création des vertices et des coordonnées UV
         for (int i = 0; i <= segments; i++)
         {
-            // Calcule l'angle pour le segment courant
             float angle = -angleExtent / 2 + i * angleStep;
-            // Calcule les positions x et z en utilisant les fonctions trigonométriques
             float x = curvatureRadius * Mathf.Sin(angle);
-            // Inverser la direction de courbure pour obtenir une forme concave
             float z = curvatureRadius * (Mathf.Cos(angle) - 1);
 
-            // Position du vertex inférieur
             vertices[i * 2] = new Vector3(x, -halfHeight, z);
-            // Position du vertex supérieur
             vertices[i * 2 + 1] = new Vector3(x, halfHeight, z);
 
-            // Coordonnées UV pour les vertices
             uv[i * 2] = new Vector2((float)i / segments, 0);
             uv[i * 2 + 1] = new Vector2((float)i / segments, 1);
 
 
             GetCornersPositions(ref cornersIndex, vertices, i, segments);
-            if (debug_mode)
-            {
-                DisplayScreenCorners();
-            }
         }
 
-
-        // Création des triangles pour chaque segment
         for (int i = 0; i < segments; i++)
         {
-            int start = i * 2; // Vertex de départ du segment courant
-            int nextStart = start + 2; // Vertex de départ du segment suivant
+            int start = i * 2;
+            int nextStart = start + 2;
 
-            // Premier triangle
             triangles[i * 6] = start;
             triangles[i * 6 + 1] = start + 1;
             triangles[i * 6 + 2] = nextStart;
 
-            // Deuxième triangle
             triangles[i * 6 + 3] = start + 1;
             triangles[i * 6 + 4] = nextStart + 1;
             triangles[i * 6 + 5] = nextStart;
@@ -194,7 +178,6 @@ public class CurvedScreen : MonoBehaviour
         mesh.vertices = vertices;
         mesh.uv = uv;
         mesh.triangles = triangles;
-        // Recalcule les normales pour l'éclairage
         mesh.RecalculateNormals();
 
         meshFilter.mesh = mesh;
@@ -205,14 +188,7 @@ public class CurvedScreen : MonoBehaviour
 
     private Vector3 GetCurveCenterPoint()
     {
-        Vector3 centerPoint = transform.position - (transform.forward * curvatureRadius);
-
-        if (debug_mode && curveCenterPointMarker != null)
-        {
-            curveCenterPointMarker.transform.position = centerPoint;
-        }
-
-        return centerPoint;
+        return transform.position - (transform.forward * curvatureRadius);
     }
 
 
@@ -237,21 +213,6 @@ public class CurvedScreen : MonoBehaviour
     }
 
 
-    private void DisplayScreenCorners()
-    {
-        if (cornersMarkers != null)
-        {
-            for (int i = 0; i < cornerPositions.Length; i++)
-            {
-                if (cornersMarkers[i] != null)
-                {
-                    cornersMarkers[i].transform.position = cornerPositions[i];
-                }
-            }
-        }
-    }
-
-
     /// <summary>
     /// Sends a raycast to the real panel, after calculating the good coordinates. Returns the GameObject hit.
     /// </summary>
@@ -270,20 +231,12 @@ public class CurvedScreen : MonoBehaviour
         float rightAngle = Vector3.Angle(fromCenterToRight, fromCenterToHitPoint);
         float x = leftAngle / (leftAngle + rightAngle);
 
-
         // Y
         Vector3 cornerDownLeft = cornerPositions[0];
         float disanceToCorner = Vector3.Distance(cornerDownLeft, leftEdgeProjection);
         float y = disanceToCorner / height;
 
-
         Vector2 normalizedHitPoint = new Vector2(x, y);
-
-        if (debug_mode && leftProjectionPointMarker != null && rightProjectionPointMarker != null)
-        {
-            leftProjectionPointMarker.transform.position = leftEdgeProjection;
-            rightProjectionPointMarker.transform.position = rightEdgeProjection;
-        }
 
         return CastRayToPanel(normalizedHitPoint);
     }
@@ -299,16 +252,6 @@ public class CurvedScreen : MonoBehaviour
         Vector3 raycastOrigin = panelRectTransform.position + rotatedPoint + offset;
         Vector3 raycastDirection = panelRectTransform.forward;
 
-        if (debug_mode)
-        {
-            Debug.DrawLine(raycastOrigin, raycastOrigin + (raycastDirection * raycastZOffset * 1.1f), Color.red);
-
-            if (raycasOriginMarker != null)
-            {
-                raycasOriginMarker.transform.position = raycastOrigin;
-            }
-        }
-
         RaycastHit hit;
         if (Physics.Raycast(raycastOrigin, raycastDirection, out hit, raycastZOffset * 1.1f, layerMask))
         {
@@ -323,19 +266,16 @@ public class CurvedScreen : MonoBehaviour
 
     private Vector3 ProjectPointOnLine(Vector3 point, Vector3 lineDirection, Vector3 linePoint)
     {
-        // Ensure the direction vector is normalized
-        //Vector3 direction = lineDirection.normalized;
-
-        // Vector from the point on the line to the point to be projected
         Vector3 lineToPoint = point - linePoint;
-
-        // Project the vector onto the direction of the line
         float projectionLength = Vector3.Dot(lineToPoint, lineDirection);
-
-        // Calculate the projection point
         Vector3 projectionPoint = linePoint + lineDirection * projectionLength;
-
         return projectionPoint;
+    }
+
+
+    public static LayerMask GetLayerMask()
+    {
+        return layerMask;
     }
 
 
@@ -347,7 +287,17 @@ public class CurvedScreen : MonoBehaviour
 
     private void OnDestroy()
     {
-        instantiatedCurvedScreens.Remove(this);
+        curvedScreensInstantiated.Remove(this);
+
+        if (cameraGameObject != null)
+        {
+            Destroy(cameraGameObject);
+        }
+
+        if (panelRectTransform != null)
+        {
+            SetLayer(panelRectTransform, LayerMask.NameToLayer("Default"));
+        }
 
         if (rdTex != null && rdTex.IsCreated())
         {
