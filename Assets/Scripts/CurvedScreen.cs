@@ -26,15 +26,15 @@ public class CurvedScreen : MonoBehaviour
     /// <summary>
     /// Initializes and shows the curved panel.
     /// </summary>
-    /// <param name="panelRectTransform">Rect trans of the 2D panel to render in 3D. The object must be on the layer designed for Curved UI elements.</param>
-    /// <param name="curvatureRadius">The radius of the curve.</param>
-    /// <param name="segments">The number of segments of the curve.</param>
+    /// <param name="panelRectTransform">Rect transform of the 2D panel to render in 3D.</param>
+    /// <param name="curvatureRadius">Radius of the curve.</param>
+    /// <param name="segments">Number of segments of the curve.</param>
     /// <param name="pixelsPerMeter">Number of pixels of the render texture displayed on the curved panel, per meter of the original 2D panel.</param>
-    /// <param name="distanceFromPanel">The distance of the curved screen from the position of the original 2D panel.</param>
-    /// <param name="raycastZOffset">The distance of the origin of the raycast witch shoots the original 2D panel.</param>
+    /// <param name="distanceFromPanel">Z offset of the curved screen from the position of the original 2D panel.</param>
+    /// <param name="raycastZOffset">Z offset of the origin of the raycast witch shoots the original 2D panel.</param>
     public static CurvedScreen Create(RectTransform panelRectTransform, float curvatureRadius = 5f, int segments = 24, int pixelsPerMeter = 256, float distanceFromPanel = 0f, float raycastZOffset = 0.5f)
     {
-        // Sets the orinal 2D panel on the appropriate layer: it won't be saw by the main camera, only by its own camera. Same thing for raycasts.
+        // Sets the orinal 2D panel on the appropriate layer: it won't be saw by the main camera, only by its own camera.
         int layer = LayerMask.NameToLayer(Conf.CURVED_UI_LAYER);
         SetLayer(panelRectTransform, layer);
 
@@ -98,7 +98,6 @@ public class CurvedScreen : MonoBehaviour
         SetPosition(cameraGameObject, camOffset);
         cameraGameObject.transform.SetParent(panelRectTransform);
 
-        //Camera cam = gameObject.AddComponent<Camera>();
         Camera cam = cameraGameObject.AddComponent<Camera>();
         cam.clearFlags = CameraClearFlags.SolidColor;
         cam.backgroundColor = new Color(0, 0, 0, 0);
