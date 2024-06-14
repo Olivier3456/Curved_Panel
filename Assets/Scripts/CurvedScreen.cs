@@ -15,8 +15,9 @@ public class CurvedScreen : MonoBehaviour
     private GameObject cameraGameObject;
     private RenderTexture rdTex;
 
-    
+
     private static LayerMask layerMask = LayerMask.GetMask(Conf.CURVED_UI_LAYER);
+    public static LayerMask GetLayerMask() { return layerMask; }
 
     private static List<CurvedScreen> curvedScreensInstantiated = new List<CurvedScreen>();
 
@@ -37,7 +38,7 @@ public class CurvedScreen : MonoBehaviour
         int layer = LayerMask.NameToLayer(Conf.CURVED_UI_LAYER);
         SetLayer(panelRectTransform, layer);
 
-        GameObject go = new GameObject($"Curved screen {panelRectTransform.gameObject.name}");
+        GameObject go = new GameObject($"Curved Screen for object {panelRectTransform.gameObject.name}");
         CurvedScreen cs = go.AddComponent<CurvedScreen>();
         cs.Initialize(panelRectTransform, curvatureRadius, segments, pixelsPerMeter, distanceFromPanel, raycastZOffset);
 
@@ -64,6 +65,8 @@ public class CurvedScreen : MonoBehaviour
         this.curvatureRadius = curvatureRadius;
         this.raycastZOffset = raycastZOffset;
 
+        transform.SetParent(panelRectTransform);
+
         SetPosition(gameObject, distanceFromPanel);
         SetScreenDimensions();
         GenerateCurvedMesh(segments);
@@ -89,7 +92,7 @@ public class CurvedScreen : MonoBehaviour
 
     private void SetupCamera()
     {
-        cameraGameObject = new GameObject("Curved Screen Camera");
+        cameraGameObject = new GameObject($"Curved Screen Camera for object {panelRectTransform.gameObject.name}");
 
         float camOffset = 0.1f;
         SetPosition(cameraGameObject, camOffset);
@@ -100,7 +103,6 @@ public class CurvedScreen : MonoBehaviour
         cam.clearFlags = CameraClearFlags.SolidColor;
         cam.backgroundColor = new Color(0, 0, 0, 0);
         cam.orthographic = true;
-        
         cam.nearClipPlane = camOffset - 0.01f;
         cam.farClipPlane = camOffset + 0.01f;
 
@@ -273,12 +275,6 @@ public class CurvedScreen : MonoBehaviour
     }
 
 
-    public static LayerMask GetLayerMask()
-    {
-        return layerMask;
-    }
-
-
     public void Dispose()
     {
         Destroy(gameObject);
@@ -287,6 +283,8 @@ public class CurvedScreen : MonoBehaviour
 
     private void OnDestroy()
     {
+        //Debug.Log("Destroying curved screen.");
+
         curvedScreensInstantiated.Remove(this);
 
         if (cameraGameObject != null)
